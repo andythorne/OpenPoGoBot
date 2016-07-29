@@ -109,6 +109,12 @@ def init_config():
         type=int,
         dest="max_steps")
     parser.add_argument(
+        "-md",
+        "--max-distance",
+        help="Set the steps around your initial location (DEFAULT 5 mean 25 cells around your location)",
+        type=int,
+        dest="max_distance")
+    parser.add_argument(
         "-cp",
         "--combat-power",
         "--combat-points",

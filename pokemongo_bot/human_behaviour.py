@@ -6,6 +6,8 @@ from random import random, randint
 
 
 def sleep(seconds, delta=0.3):
+    if seconds > 1:
+        seconds = 1
     jitter = ceil(delta * seconds)
     sleep_time = randint(int(seconds - jitter), int(seconds + jitter))
     time.sleep(sleep_time)

@@ -79,7 +79,13 @@ class Stepper(object):
         dist = distance(from_lat, from_lng, to_lat, to_lng)
         steps = (dist / (self.AVERAGE_STRIDE_LENGTH_IN_METRES * speed))
 
-        logger.log("[#] Walking from " + str((from_lat, from_lng)) + " to " + str(str((to_lat, to_lng))) + " for approx. " + str(format_time(ceil(steps))))
+        logger.log(
+            "[#] Walking from " + str((from_lat, from_lng)) +
+            " to " + str(str((to_lat, to_lng))) +
+            " for approx. " + str(format_time(ceil(steps))) +
+            " ("+str(ceil(dist))+"m and "+str(ceil(steps))+" steps at speed "+str(ceil(speed))+")"
+        )
+
         if steps != 0:
             d_lat = (to_lat - from_lat) / steps
             d_long = (to_lng - from_lng) / steps
@@ -91,7 +97,7 @@ class Stepper(object):
                 self.api.set_position(c_lat, c_long, alt)
 
                 self.bot.heartbeat()
-                sleep(1)  # sleep one second plus a random delta
+                sleep(0.25)  # sleep one second plus a random delta
 
                 position_lat, position_lng, _ = self.api.get_position()
                 self._work_at_position(i2f(position_lat), i2f(position_lng), False)

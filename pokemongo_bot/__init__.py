@@ -105,6 +105,12 @@ class PokemonGoBot(object):
                 # build graph & A* it
                 forts.sort(key=lambda x: distance(self.position[0], self.position[1], x['latitude'], x['longitude']))
                 for fort in forts:
+                    # Ignore any fort outside our max distance
+                    if self.config.max_distance > 0:
+                        if distance(self.stepper.origin_lat, self.stepper.origin_lon, fort['latitude'], fort['longitude']) > self.config.max_distance:
+                            logger.log('[#] Fort outside max distance, skipping')
+                            continue
+
                     walk_worker = WalkTowardsFortWorker(fort, self)
                     walk_worker.work()
 
@@ -245,7 +251,7 @@ class PokemonGoBot(object):
         while not self.api.login(self.config.auth_service, str(self.config.username), str(self.config.password)):
             logger.log('[X] Login Error, server busy', 'red')
             logger.log('[X] Waiting 10 seconds to try again', 'red')
-            time.sleep(10)
+            time.sleep(1)
 
         logger.log('[+] Login to Pokemon Go successful.', 'green')
         self.api.get_player()
