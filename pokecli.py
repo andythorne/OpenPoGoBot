@@ -33,6 +33,7 @@ import os
 import ssl
 import sys
 
+import colorama
 from pgoapi import PGoApi
 
 from api import PoGoApi
@@ -89,10 +90,10 @@ def main():
         pgo = PGoApi()
         api_wrapper = PoGoApi(
             pgo,
-            provider=config.provider,
+            provider=config.auth_service,
             username=config.username,
             password=config.password,
-            shared_lib=config.shared_lib
+            shared_lib=config.load_library
         )
 
         plugin_manager = PluginManager('./plugins')
