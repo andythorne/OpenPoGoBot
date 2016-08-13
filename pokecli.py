@@ -79,6 +79,7 @@ def main():
 
     try:
         service_container.register_singleton('config', config)
+        service_container.set_parameter('config', config)
         service_container.register_singleton('pgoapi', PGoApi())
         service_container.register_singleton('plugin_manager', PluginManager('./plugins'))
         service_container.register_singleton('event_manager', manager)
@@ -86,15 +87,13 @@ def main():
         if config.path_finder in ['google', 'direct']:
             service_container.set_parameter('path_finder', config.path_finder)
         else:
-            raise Exception('You must provide a path finder')
+            raise Exception('You must provide a valid path finder')
 
         if config.navigator in ['fort', 'waypoint', 'camper']:
             service_container.set_parameter('navigator', config.navigator)
         else:
-            raise Exception('You must provide a navigator')
+            raise Exception('You must provide a valid navigator')
 
-        #log = logging.getLogger(__name__)
-        # bot = PokemonGoBot(config, api_wrapper, player_service, pokemon_service, plugin_manager, event_manager, mapper, stepper, navigator, log)
         bot = service_container.get('pokemongo_bot')
         bot.start()
 
