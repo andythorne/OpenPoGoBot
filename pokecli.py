@@ -27,10 +27,11 @@ Author: tjado <https://github.com/tejado>
 
 from __future__ import print_function
 
-import googlemaps
+import os
 import ssl
 import sys
 
+import googlemaps
 import colorama
 from pgoapi import PGoApi
 import ruamel.yaml
