@@ -97,7 +97,7 @@ class CatchPokemon(Plugin):
                     pos = {"latitude": encounter_data.latitude, "longitude": encounter_data.longitude}
                     should_continue_throwing = self.throw_pokeball(bot, encounter_id, pokeball, spawn_point_id, pokemon, pos)
 
-                time.sleep(5)
+                sleep(5)
             elif status is 6:
                 return
             else:
