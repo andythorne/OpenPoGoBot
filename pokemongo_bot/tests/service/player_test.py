@@ -5,13 +5,13 @@ from mock import Mock, patch
 from api.player import Player as PlayerData
 from pokemongo_bot.item_list import Item
 from pokemongo_bot.service.player import Player
-from pokemongo_bot.tests import create_test_config, create_mock_api_wrapper
+from pokemongo_bot.tests import create_core_test_config, create_mock_api_wrapper
 
 
 class PlayerTest(unittest.TestCase):
     @staticmethod
     def test_login_success():
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -23,7 +23,7 @@ class PlayerTest(unittest.TestCase):
 
     @staticmethod
     def test_login_failure():
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -34,7 +34,7 @@ class PlayerTest(unittest.TestCase):
         assert (player_service.login()) is False
 
     def test_get_player(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -51,7 +51,7 @@ class PlayerTest(unittest.TestCase):
         assert pgo.call_stack_size() == 0
 
     def test_get_inventory(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -67,7 +67,7 @@ class PlayerTest(unittest.TestCase):
         assert pgo.call_stack_size() == 0
 
     def test_get_pokemon(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -83,7 +83,7 @@ class PlayerTest(unittest.TestCase):
         assert pgo.call_stack_size() == 0
 
     def test_get_candies(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -100,7 +100,7 @@ class PlayerTest(unittest.TestCase):
         assert pgo.call_stack_size() == 0
 
     def test_get_candy(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -116,7 +116,7 @@ class PlayerTest(unittest.TestCase):
         assert pgo.call_stack_size() == 0
 
     def test_get_candy_key_error(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -132,7 +132,7 @@ class PlayerTest(unittest.TestCase):
         assert pgo.call_stack_size() == 0
 
     def test_add_candy(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -151,8 +151,28 @@ class PlayerTest(unittest.TestCase):
         assert after_candies == 103
         assert pgo.call_stack_size() == 0
 
+    def test_add_candy_new(self):
+        config = create_core_test_config()
+        api_wrapper = create_mock_api_wrapper(config)
+        logger = Mock()
+        logger.log = Mock()
+        player_service = Player(api_wrapper, logger)
+
+        pgo = api_wrapper.get_api()
+        pgo.set_response('get_player', self._create_generic_player_response())
+        pgo.set_response('get_inventory', self._create_generic_inventory_response())
+
+        before_candies = player_service.get_candy(1)
+        assert before_candies == 100
+
+        player_service.add_candy(10, 3)
+        after_candies = player_service.get_candy(10)
+
+        assert after_candies == 3
+        assert pgo.call_stack_size() == 0
+
     def test_get_pokeballs(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -178,7 +198,7 @@ class PlayerTest(unittest.TestCase):
         assert pgo.call_stack_size() == 0
 
     def test_print_stats(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -210,7 +230,7 @@ class PlayerTest(unittest.TestCase):
         assert pgo.call_stack_size() == 0
 
     def test_print_stats_no_update(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()
@@ -225,7 +245,7 @@ class PlayerTest(unittest.TestCase):
         self._assert_log_call(logger.log, 'Failed to retrieve player and inventory stats', color='red')
 
     def test_heartbeat(self):
-        config = create_test_config({})
+        config = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config)
         logger = Mock()
         logger.log = Mock()

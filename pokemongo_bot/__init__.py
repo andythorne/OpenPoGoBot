@@ -1,5 +1,8 @@
-import googlemaps
+import os
 
+import sys
+
+import googlemaps
 from pgoapi import PGoApi
 
 from app import kernel
@@ -17,6 +20,9 @@ from pokemongo_bot.service import Player, Pokemon
 def boot(service_container):
     # PoGoApi parameters
     config = service_container.get('config.core')
+
+    if os.path.isfile(os.path.join(os.getcwd(), config['load_library'])):
+        config['load_library'] = os.path.join(os.getcwd(), config['load_library'])
 
     service_container.set_parameter('pogoapi.provider', config['login']['auth_service'])
     service_container.set_parameter('pogoapi.username', config['login']['username'])

@@ -1,13 +1,13 @@
 import unittest
 
 from pokemongo_bot.navigation.path_finder import DirectPathFinder
-from pokemongo_bot.tests import create_test_config
+from pokemongo_bot.tests import create_core_test_config
 
 
 class DirectPathFinderTest(unittest.TestCase):
     @staticmethod
     def test_path():
-        config = create_test_config()
+        config = create_core_test_config()
         path_finder = DirectPathFinder(config)
 
         path = path_finder.path(51.5043872, -0.0741802, 51.5060435, -0.073983)

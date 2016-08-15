@@ -5,6 +5,7 @@ from app.plugin_manager import PluginManager
 
 import ruamel.yaml
 
+
 class Kernel(object):
     """
         The Kernel handles the creation of the app and service container.
@@ -40,6 +41,9 @@ class Kernel(object):
                 with open(location, 'r') as config_file:
                     module_name = node[:-4]
                     self._configs[module_name] = ruamel.yaml.load(config_file.read(), ruamel.yaml.RoundTripLoader)
+
+    def get_config(self):
+        return self._configs
 
     def disable_plugin(self, plugin_name):
         # type: (str) -> None

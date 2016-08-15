@@ -1,5 +1,8 @@
+import collections
 import os
+import uuid
 from argparse import Namespace
+from future.utils import viewitems
 
 from mock import Mock, MagicMock
 import pgoapi
@@ -112,7 +115,7 @@ def create_test_kernel(user_config=None):
 
     kernel = Kernel()
 
-    config = create_test_config(user_config)
+    config = create_core_test_config(user_config)
 
     kernel.container.register_singleton('config', config)
     kernel.container.register_singleton('pgoapi', PGoApiMock())
@@ -128,30 +131,46 @@ def create_test_kernel(user_config=None):
     return kernel
 
 
-def create_test_config(user_config=None):
+def create_core_test_config(user_config=None):
     # type: (Dict) -> Namespace
     if user_config is None:
         user_config = {}
 
     config = {
-        "auth_service": "ptc",
-        "username": "testaccount",
-        "password": "test123",
-        "gmapskey": "test_key",
         "load_library": "libencrypt.so",
         "debug": False,
-        "navigator": "fort",
-        "path_finder": "direct",
-        "walk": 4.16,
-        "max_steps": 2
+        "login": {
+            "auth_service": "ptc",
+            "username": "testaccount",
+            "password": "test123",
+        },
+        "mapping": {
+            "gmapskey": "test_key",
+            "location": None,
+            "location_cache": False,
+            "distance_unit": "km",
+        },
+        "movement": {
+            "path_finder": "direct",
+            "navigator": "fort",
+            "navigator_waypoints": [],
+            "navigator_campsite": None,
+            "walk_speed": 4.16,
+        },
+        "plugins": {
+            "exclude": [],
+            "include": ['./tests/plugins'],
+            "config": "config/plugins"
+        }
     }
-    config.update(user_config)
 
-    return Namespace(**config)
+    config = _merge_config(config, user_config)
+
+    return config
 
 
 def create_mock_bot(user_config=None):
-    config_namespace = create_test_config(user_config)
+    config_namespace = create_core_test_config(user_config)
 
     event_manager = EventManager()
     logger = Logger(event_manager)
@@ -176,3 +195,17 @@ def create_mock_bot(user_config=None):
     )
 
     return bot
+
+
+def test_account_name():
+    return 'test_account-' + str(uuid.uuid1())
+
+
+def _merge_config(d, u):
+    for k, v in viewitems(u):
+        if isinstance(v, collections.Mapping):
+            r = _merge_config(d.get(k, {}), v)
+            d[k] = r
+        else:
+            d[k] = u[k]
+    return d

@@ -15,7 +15,7 @@ class PluginsTest(unittest.TestCase):
 
     @staticmethod
     def test_get_available_plugins():
-        plugin_manager = PluginManager(os.path.dirname(os.path.realpath(__file__)) + '/plugins')
+        plugin_manager = PluginManager([os.path.dirname(os.path.realpath(__file__)) + '/plugins'])
 
         plugins = plugin_manager.get_available_plugins()
 
@@ -26,7 +26,7 @@ class PluginsTest(unittest.TestCase):
         assert 'info' in plugins['test_plugin']
 
     def test_load_plugin(self):
-        plugin_manager = PluginManager(os.path.dirname(os.path.realpath(__file__)) + '/plugins')
+        plugin_manager = PluginManager([os.path.dirname(os.path.realpath(__file__)) + '/plugins'])
 
         plugin_manager.load_plugin('test_plugin')
 
@@ -41,7 +41,7 @@ class PluginsTest(unittest.TestCase):
         assert 'Loaded plugin "test_plugin".' in self.out.getvalue().strip()
 
     def test_load_plugin_already_loaded(self):
-        plugin_manager = PluginManager(os.path.dirname(os.path.realpath(__file__)) + '/plugins')
+        plugin_manager = PluginManager([os.path.dirname(os.path.realpath(__file__)) + '/plugins'])
 
         plugin_manager.load_plugin('test_plugin')
         plugin_manager.load_plugin('test_plugin')
@@ -56,14 +56,14 @@ class PluginsTest(unittest.TestCase):
 
     def test_load_plugin_not_exists(self):
         with pytest.raises(Exception) as _:
-            plugin_manager = PluginManager(os.path.dirname(os.path.realpath(__file__)) + '/plugins')
+            plugin_manager = PluginManager([os.path.dirname(os.path.realpath(__file__)) + '/plugins'])
 
             plugin_manager.load_plugin('unknown')
 
             assert 'Cannot locate plugin "unknown"!' in self.out.getvalue().strip()
 
     def test_unload_plugin(self):
-        plugin_manager = PluginManager(os.path.dirname(os.path.realpath(__file__)) + '/plugins')
+        plugin_manager = PluginManager([os.path.dirname(os.path.realpath(__file__)) + '/plugins'])
 
         plugin_manager.load_plugin('test_plugin')
 

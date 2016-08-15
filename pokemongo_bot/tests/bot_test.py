@@ -17,7 +17,7 @@ from pokemongo_bot.navigation.path_finder import DirectPathFinder
 from pokemongo_bot.service.player import Player
 from pokemongo_bot.service.pokemon import Pokemon as PokemonService
 from pokemongo_bot.stepper import Stepper
-from pokemongo_bot.tests import create_mock_api_wrapper, create_test_config, create_test_kernel
+from pokemongo_bot.tests import create_mock_api_wrapper, create_core_test_config
 
 
 class BotTest(unittest.TestCase):
@@ -26,7 +26,7 @@ class BotTest(unittest.TestCase):
         logger = Mock()
         logger.log = Mock(return_value=None)
 
-        config_namespace = create_test_config({})
+        config_namespace = create_core_test_config()
         api_wrapper = create_mock_api_wrapper(config_namespace)
         player_service = Player(api_wrapper, logger)
         pokemon_service = PokemonService(api_wrapper)
@@ -54,19 +54,13 @@ class BotTest(unittest.TestCase):
 
     def test_start_login_success_no_debug(self):
         bot = self._create_generic_bot({
-            'debug': False,
-            'test': False,
-            "print_events": True,
-            'exclude_plugins': ['another_test_plugin'],
-            'load_library': 'libencrypt.so',
-            'auth_service': 'ptc',
-            'username': 'test_account',
-            'password': 'pa55w0rd',
-            'location': '51.5037053,-0.2047603',
-            'location_cache': False,
-            'gmapkey': 'test_gmaps_key',
-            'initial_transfer': True,
-            'recycle_items': True
+            'plugins': {
+                'exclude': ['another_test_plugin'],
+            },
+            'mapping': {
+                'location': '51.5037053,-0.2047603',
+                'location_cache': False,
+            }
         })
 
         bot.mapper.google_maps.elevation = Mock(return_value=[{'elevation': 10.1}])
@@ -86,8 +80,6 @@ class BotTest(unittest.TestCase):
 
         bot.event_manager.fire_with_context.assert_has_calls([
             call('bot_initialized', bot),
-            call('pokemon_bag_full', bot),
-            call('item_bag_full', bot)
         ])
 
         # Check logging
@@ -96,23 +88,18 @@ class BotTest(unittest.TestCase):
         assert logging.getLogger('rpc_api').level == logging.ERROR
 
         # Check events
-        assert bot.event_manager.fire_with_context.call_count == 3
+        assert bot.event_manager.fire_with_context.call_count == 1
 
     def test_start_login_success_with_debug(self):
         bot = self._create_generic_bot({
             'debug': True,
-            'test': False,
-            "print_events": True,
-            'exclude_plugins': ['another_test_plugin'],
-            'load_library': 'libencrypt.so',
-            'auth_service': 'ptc',
-            'username': 'test_account',
-            'password': 'pa55w0rd',
-            'location': 'Tower Bridge, London',
-            'location_cache': False,
-            'gmapkey': 'test_gmaps_key',
-            'initial_transfer': True,
-            'recycle_items': True
+            'plugins': {
+                'exclude': ['another_test_plugin'],
+            },
+            'mapping': {
+                'location': 'Tower Bridge, London',
+                'location_cache': False,
+            }
         })
 
         bot.mapper.google_maps.elevation = Mock(return_value=[{'elevation': 10.1}])
@@ -129,8 +116,6 @@ class BotTest(unittest.TestCase):
 
         bot.event_manager.fire_with_context.assert_has_calls([
             call('bot_initialized', bot),
-            call('pokemon_bag_full', bot),
-            call('item_bag_full', bot)
         ])
 
         # Check logging
@@ -139,27 +124,25 @@ class BotTest(unittest.TestCase):
         assert logging.getLogger('rpc_api').level == logging.DEBUG
 
         # Check events
-        assert bot.event_manager.fire_with_context.call_count == 3
+        assert bot.event_manager.fire_with_context.call_count == 1
 
     def test_start_login_success_location_cache_not_exists(self):
+        account = 'test_account-test_start_login_success_location_cache_not_exists'
         bot = self._create_generic_bot({
-            'debug': True,
-            'test': False,
-            "location_cache": True,
-            "print_events": True,
-            'exclude_plugins': ['another_test_plugin'],
-            'load_library': 'libencrypt.so',
-            'auth_service': 'ptc',
-            'username': 'test_account',
-            'password': 'pa55w0rd',
-            'location': None,
-            'gmapkey': 'test_gmaps_key',
-            'initial_transfer': True,
-            'recycle_items': True
+            'login': {
+                'username': account
+            },
+            'plugins': {
+                'exclude': ['another_test_plugin'],
+            },
+            'mapping': {
+                'location': None,
+                'location_cache': True,
+            }
         })
 
-        if os.path.isfile('data/last-location-test_account.json'):
-            os.unlink('data/last-location-test_account.json')
+        if os.path.isfile('data/last-location-'+account+'.json'):
+            os.unlink('data/last-location-'+account+'.json')
 
         bot.logger.log.return_value = None
 
@@ -169,29 +152,29 @@ class BotTest(unittest.TestCase):
             bot.start()
 
     def test_start_login_success_location_cache(self):
+        account = 'test_account-test_start_login_success_location_cache'
         bot = self._create_generic_bot({
-            'debug': True,
-            'test': False,
-            "print_events": True,
-            'exclude_plugins': ['another_test_plugin'],
-            'load_library': 'libencrypt.so',
-            'auth_service': 'ptc',
-            'username': 'test_account',
-            'password': 'pa55w0rd',
-            'location': '0,0',
-            'location_cache': True,
-            'gmapkey': 'test_gmaps_key',
-            'initial_transfer': True,
-            'recycle_items': True
+            'login': {
+                'username': account
+            },
+            'plugins': {
+                'exclude': ['another_test_plugin'],
+            },
+            'mapping': {
+                'location': '0,0',
+                'location_cache': True,
+            }
         })
 
-        if os.path.isfile('data/last-location-test_account.json'):
-            os.unlink('data/last-location-test_account.json')
+        if os.path.isfile('data/last-location-'+account+'.json'):
+            os.unlink('data/last-location-'+account+'.json')
 
-        with open('data/last-location-test_account.json', 'w') as location_file:
+        with open('data/last-location-'+account+'.json', 'w') as location_file:
             location_file.write(json.dumps({'lat': 51.5037053, 'lng': -0.2047603}))
 
         bot.logger.log.return_value = None
+
+        bot.mapper.google_maps.elevation = Mock(return_value=[{'elevation': 10.1}])
 
         bot.event_manager.fire_with_context = Mock()
 
@@ -203,35 +186,22 @@ class BotTest(unittest.TestCase):
 
         bot.event_manager.fire_with_context.assert_has_calls([
             call('bot_initialized', bot),
-            call('pokemon_bag_full', bot),
-            call('item_bag_full', bot)
         ])
 
-        # Check logging
-        assert logging.getLogger('requests').level == logging.DEBUG
-        assert logging.getLogger('pgoapi').level == logging.DEBUG
-        assert logging.getLogger('rpc_api').level == logging.DEBUG
-
         # Check events
-        assert bot.event_manager.fire_with_context.call_count == 3
+        assert bot.event_manager.fire_with_context.call_count == 1
 
-        os.unlink('data/last-location-test_account.json')
+        os.unlink('data/last-location-'+account+'.json')
 
     def test_start_login_failed(self):
         bot = self._create_generic_bot({
-            'debug': True,
-            'test': False,
-            "print_events": True,
-            'exclude_plugins': ['another_test_plugin'],
-            'load_library': 'libencrypt.so',
-            'auth_service': 'ptc',
-            'username': 'test_account',
-            'password': 'pa55w0rd',
-            'location': '51.5037053,-0.2047603',
-            'location_cache': False,
-            'gmapkey': 'test_gmaps_key',
-            'initial_transfer': True,
-            'recycle_items': True
+            'plugins': {
+                'exclude': ['another_test_plugin'],
+            },
+            'mapping': {
+                'location': '0,0',
+                'location_cache': True,
+            }
         })
 
         bot.mapper.google_maps.elevation = Mock(return_value=[{'elevation': 10.1}])
@@ -252,9 +222,7 @@ class BotTest(unittest.TestCase):
         bot.logger.log.assert_any_call('Waiting 15 seconds before trying again...')
 
     def test_run(self):
-        bot = self._create_generic_bot({
-            'username': 'test_account'
-        })
+        bot = self._create_generic_bot({})
         bot.api_wrapper.set_location(51.504154, -0.076304, 10)
         bot.stepper.current_lat = 51.504154
         bot.stepper.current_lng = -0.076304
@@ -303,9 +271,7 @@ class BotTest(unittest.TestCase):
         bot.run()
 
     def test_work_on_cells(self):
-        bot = self._create_generic_bot({
-            'username': 'test_account'
-        })
+        bot = self._create_generic_bot({})
         bot.fire = Mock()
 
         poke1 = Pokemon({'id': 1})
@@ -338,9 +304,7 @@ class BotTest(unittest.TestCase):
         ])
 
     def test_get_username(self):
-        bot = self._create_generic_bot({
-            'username': 'test_account'
-        })
+        bot = self._create_generic_bot({})
 
         pgo = bot.api_wrapper.get_api()
         pgo.set_response('get_player', self._create_generic_player_response())
@@ -349,9 +313,7 @@ class BotTest(unittest.TestCase):
         assert (bot.get_username()) == 'test_account'
 
     def test_get_username_unknown(self):
-        bot = self._create_generic_bot({
-            'username': 'test_account'
-        })
+        bot = self._create_generic_bot({})
         bot.player_service.get_player = Mock(return_value=None)
 
         assert (bot.get_username()) == 'Unknown'
@@ -360,7 +322,7 @@ class BotTest(unittest.TestCase):
     def _create_generic_bot(config):
         logger = Mock()
         logger.log = Mock()
-        config_namespace = create_test_config(config)
+        config_namespace = create_core_test_config(config)
         api_wrapper = create_mock_api_wrapper(config_namespace)
         player_service = Player(api_wrapper, logger)
         pokemon_service = PokemonService(api_wrapper)

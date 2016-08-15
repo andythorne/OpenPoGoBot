@@ -62,7 +62,6 @@ class PokemonGoBot(object):
 
         self.fire('bot_initialized')
 
-        self.logger.log('[#]')
         self.player_service.update()
 
     def _setup_logging(self):

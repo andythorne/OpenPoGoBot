@@ -24,8 +24,14 @@ class ServiceContainer(object):
 
         return register_handler
 
-    def register_singleton(self, service_id, service_instance):
+    def register_singleton(self, service_id, service_instance, tags=None):
         self._services[service_id] = service_instance
+
+        if tags is not None:
+            for tag in tags:
+                if tag not in self._services_tags:
+                    self._services_tags[tag] = []
+                self._services_tags[tag].append(service_id)
 
     def _make_service(self, service_id):
         service_class, service_args, service_kwargs = self._services_definitions[service_id]

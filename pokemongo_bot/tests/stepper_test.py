@@ -6,14 +6,16 @@ from pokemongo_bot.stepper import Stepper
 from pokemongo_bot.navigation.destination import Destination
 from pokemongo_bot.navigation.path_finder import DirectPathFinder
 from pokemongo_bot.navigation.path_finder import GooglePathFinder
-from pokemongo_bot.tests import create_mock_bot, create_test_config, create_mock_api_wrapper
+from pokemongo_bot.tests import create_mock_api_wrapper, create_core_test_config
 
 
 class StepperTest(unittest.TestCase):
     @staticmethod
     def test_init():
-        config = create_test_config({
-            "walk": 13.37,
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": 13.37,
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = Mock()
@@ -34,8 +36,10 @@ class StepperTest(unittest.TestCase):
 
     @staticmethod
     def test_init_no_walk():
-        config = create_test_config({
-            "walk": None,
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": None,
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = Mock()
@@ -47,8 +51,10 @@ class StepperTest(unittest.TestCase):
 
     @staticmethod
     def test_init_negative_walk():
-        config = create_test_config({
-            "walk": -5,
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": -5,
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = Mock()
@@ -60,8 +66,10 @@ class StepperTest(unittest.TestCase):
 
     @staticmethod
     def test_init_path_finder_google():
-        config = create_test_config({
-            "walk": 4.16,
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": 4.16,
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = GooglePathFinder(config, Mock())
@@ -73,8 +81,10 @@ class StepperTest(unittest.TestCase):
 
     @staticmethod
     def test_init_path_finder_direct():
-        config = create_test_config({
-            "walk": 4.16,
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": 4.16,
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = DirectPathFinder(config)
@@ -86,8 +96,10 @@ class StepperTest(unittest.TestCase):
 
     @staticmethod
     def test_start():
-        config = create_test_config({
-            "walk": 4.16,
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": 4.16,
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = DirectPathFinder(config)
@@ -114,8 +126,10 @@ class StepperTest(unittest.TestCase):
 
     @staticmethod
     def test_get_route_between():
-        config = create_test_config({
-            "walk": 5,
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": 5,
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = DirectPathFinder(config)
@@ -135,8 +149,10 @@ class StepperTest(unittest.TestCase):
 
     @staticmethod
     def test_snap_to():
-        config = create_test_config({
-            "walk": 5,
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": 5,
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = DirectPathFinder(config)
@@ -161,8 +177,10 @@ class StepperTest(unittest.TestCase):
 
     @staticmethod
     def test_snap_to_over_distance():
-        config = create_test_config({
-            "walk": 5,
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": 5,
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = DirectPathFinder(config)
@@ -186,10 +204,12 @@ class StepperTest(unittest.TestCase):
 
     @staticmethod
     def test_step():
-        config = create_test_config({
-            "walk": 5,
-            "path_finder": "direct",
-            "distance_unit": "m"
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": 5,
+                "path_finder": "direct",
+                "distance_unit": "m"
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = DirectPathFinder(config)
@@ -237,10 +257,12 @@ class StepperTest(unittest.TestCase):
     @staticmethod
     def test_step_already_near_fort():
         calls = []
-        config = create_test_config({
-            "walk": 5,
-            "path_finder": "direct",
-            "distance_unit": "m"
+        config = create_core_test_config({
+            "movement": {
+                "walk_speed": 5,
+                "path_finder": "direct",
+                "distance_unit": "m"
+            }
         })
         api_wrapper = create_mock_api_wrapper(config)
         path_finder = DirectPathFinder(config)
