@@ -19,7 +19,6 @@ class Stepper(object):
         self.logger = logger
 
         self.speed = 4.16 if self.config["movement"]["walk_speed"] <= 0 else self.config["movement"]["walk_speed"]
-        self.path_finder = None
 
         self.origin_lat = None
         self.origin_lng = None
@@ -78,7 +77,6 @@ class Stepper(object):
             from_lat = path_to_lat
             from_lng = path_to_lng
 
-        self.bot.fire("route", route=route_steps)
         return route_steps
 
     def _get_steps_between(self, from_lat, from_lng, to_lat, to_lng, alt):

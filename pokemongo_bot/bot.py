@@ -106,15 +106,16 @@ class PokemonGoBot(object):
             position_lat = self.stepper.current_lat
             position_lng = self.stepper.current_lng
 
-            destination.set_steps(
-                self.stepper.get_route_between(
-                    position_lat,
-                    position_lng,
-                    destination.target_lat,
-                    destination.target_lng,
-                    destination.target_alt
-                )
+            steps = self.stepper.get_route_between(
+                position_lat,
+                position_lng,
+                destination.target_lat,
+                destination.target_lng,
+                destination.target_alt
             )
+            destination.set_steps(steps)
+            
+            self.fire("route", route=steps)
 
             self.fire("walking_started",
                       coords=(destination.target_lat, destination.target_lng, destination.target_alt))

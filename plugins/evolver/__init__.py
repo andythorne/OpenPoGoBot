@@ -28,7 +28,7 @@ class Evolver(Plugin):
         base_name = base_pokemon['name']
         pokemon_id = base_pokemon['id']
         num_evolve = base_pokemon['requirements']
-        pokemon_candies = bot.candies.get(int(pokemon_id), 0)
+        pokemon_candies = bot.player_service.get_candy(int(pokemon_id))
         evolve_list = self.config["evolve_filter"]
         if base_name in evolve_list and evolve_list[base_name]["evolve"] is True:
             if num_evolve is None:
