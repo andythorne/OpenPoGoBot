@@ -9,7 +9,7 @@ from app import kernel
 from pokemongo_bot.utils import distance
 
 
-@kernel.container.register('mapper', ['@config', '@api_wrapper', '@google_maps', '@logger'])
+@kernel.container.register('mapper', ['@config.core', '@api_wrapper', '@google_maps', '@logger'])
 class Mapper(object):
     def __init__(self, config, api_wrapper, google_maps, logger):
         # type: (Namespace, PoGoApi, Client) -> None

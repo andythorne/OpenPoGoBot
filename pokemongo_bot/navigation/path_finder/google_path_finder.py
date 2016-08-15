@@ -6,7 +6,7 @@ from pokemongo_bot.navigation.path_finder.path_finder import PathFinder
 from app import kernel
 
 
-@kernel.container.register('google_path_finder', ['@config', '@google_maps'])
+@kernel.container.register('google_path_finder', ['@config.core', '@google_maps'])
 class GooglePathFinder(PathFinder):
 
     def __init__(self, config, google_maps):

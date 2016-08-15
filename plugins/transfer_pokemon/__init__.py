@@ -1,30 +1,17 @@
-from api.pokemon import Pokemon
+from app import Plugin
 from app import kernel
 from pokemongo_bot.human_behaviour import sleep
-from pokemongo_bot import logger
 
 
-# TODO: Use DI for config loading (requires PR #270)
-import ruamel.yaml
-import os # pylint: disable=wrong-import-order
-with open(os.path.join(os.getcwd(), 'config/plugins/transfer_pokemon.yml'), 'r') as config_file:
-    transfer_config = ruamel.yaml.load(config_file.read(), ruamel.yaml.RoundTripLoader)
-
-
-@manager.on("bot_initialized")
-def transfer_on_bot_start(bot):
-    if transfer_config["transfer_on_start"]:
-        bot.fire("pokemon_bag_full")
-
-
-@kernel.container.register('transfer_pokemon', ['@event_manager', '@logger'], tags=['plugin'])
-class TransferPokemon(object):
-    def __init__(self, event_manager, logger):
+@kernel.container.register('transfer_pokemon', ['@config.transfer_pokemon', '@event_manager', '@logger'], tags=['plugin'])
+class TransferPokemon(Plugin):
+    def __init__(self, config, event_manager, logger):
+        self.config = config
         self.event_manager = event_manager
-        self.logger = logger
+        self.set_logger(logger, 'Transfer')
 
-        if transfer_config["transfer_on_start"]:
-            self.event_manager.add_listener('bot_initialized', self.transfer_on_start)
+        if self.config["transfer_on_start"]:
+            self.event_manager.add_listener('bot_initialized', self.transfer_on_bot_start)
 
         self.event_manager.add_listener('pokemon_bag_full', self.filter_deployed_pokemon, priority=-50)
         self.event_manager.add_listener('pokemon_bag_full', self.filter_favorited_pokemon, priority=-40)
@@ -41,7 +28,7 @@ class TransferPokemon(object):
         self.event_manager.add_listener('pokemon_bag_full', self.transfer_pokemon, priority=0)
 
     @staticmethod
-    def transfer_on_start(bot):
+    def transfer_on_bot_start(bot):
         bot.fire("pokemon_bag_full")
 
     @staticmethod
@@ -117,7 +104,7 @@ class TransferPokemon(object):
     def filter_pokemon_by_ignore_list(self, bot, transfer_list=None, filter_list=None):
         # type: (PokemonGoBot, Optional[List[Pokemon]]), Optional[List[str]] -> Dict[Str, List]
 
-        if transfer_config["use_always_keep_filter"] is False:
+        if self.config["use_always_keep_filter"] is False:
             return
 
         filter_list = [] if filter_list is None else filter_list
@@ -125,7 +112,7 @@ class TransferPokemon(object):
         if transfer_list is None:
             return False
 
-        always_keep_list = transfer_config["always_keep"]
+        always_keep_list = self.config["always_keep"]
 
         new_transfer_list = []
         excluded_species = set()
@@ -150,7 +137,7 @@ class TransferPokemon(object):
     def filter_pokemon_by_cp_iv(self, bot, transfer_list=None, filter_list=None):
         # type: (PokemonGoBot, Optional[List[Pokemon]]), Optional[List[str]] -> Dict[Str, List]
 
-        if transfer_config["use_cp_iv_filter"] is False:
+        if self.config["use_cp_iv_filter"] is False:
             return
 
         filter_list = [] if filter_list is None else filter_list
@@ -160,7 +147,7 @@ class TransferPokemon(object):
         if transfer_list is None:
             return False
 
-        cp_iv_rules = transfer_config["cp_iv_rules"]
+        cp_iv_rules = self.config["cp_iv_rules"]
         default_rules = cp_iv_rules["default"]
 
         indexed_pokemon = self.get_indexed_pokemon(bot, transfer_list)
@@ -251,6 +238,3 @@ class TransferPokemon(object):
             bot.fire('after_transfer_pokemon', pokemon=pokemon)
 
         self.log("Transferred {} Pokemon.".format(len(transfer_list)))
-
-    def log(self, text, color="black"):
-        self.logger.log(text, color=color, prefix="Transfer")

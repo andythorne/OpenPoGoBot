@@ -24,7 +24,7 @@ from pokemongo_bot.navigation import CamperNavigator, FortNavigator, WaypointNav
 # from api.pokemon import Pokemon
 # from api.worldmap import Cell
 
-@kernel.container.register('pokemongo_bot', ['@config', '@api_wrapper', '@player_service', '@pokemon_service', '@event_manager', '@mapper', '@stepper', '%navigator%', '@logger'])
+@kernel.container.register('pokemongo_bot', ['@config.core', '@api_wrapper', '@player_service', '@pokemon_service', '@event_manager', '@mapper', '@stepper', '%navigator%', '@logger'])
 class PokemonGoBot(object):
     process_ignored_pokemon = False
 
@@ -61,12 +61,6 @@ class PokemonGoBot(object):
         self.player_service.print_stats()
 
         self.fire('bot_initialized')
-
-        if self.config.initial_transfer:
-            self.fire("pokemon_bag_full")
-
-        if self.config.recycle_items:
-            self.fire("item_bag_full")
 
         self.logger.log('[#]')
         self.player_service.update()

@@ -3,13 +3,13 @@ from pokemongo_bot.navigation.destination import Destination
 from pokemongo_bot.navigation.navigator import Navigator
 
 
-@kernel.container.register('waypoint_navigator', ['@config', '@api_wrapper'])
+@kernel.container.register('waypoint_navigator', ['@config.core', '@api_wrapper'])
 class WaypointNavigator(Navigator):
     def __init__(self, config, api_wrapper):
         # type: (Namespace, PoGoApi) -> None
         super(WaypointNavigator, self).__init__(config, api_wrapper)
 
-        self.waypoints = config.navigator_waypoints
+        self.waypoints = config['movement']['navigator_waypoints']
         self.pointer = 0
 
     def navigate(self, map_cells):

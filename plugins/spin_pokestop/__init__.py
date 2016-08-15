@@ -4,6 +4,7 @@ from __future__ import print_function
 import time
 from math import ceil
 
+from app import Plugin
 from app import kernel
 from pokemongo_bot.human_behaviour import sleep
 from pokemongo_bot.utils import format_time, filtered_forts, distance, format_dist
@@ -11,17 +12,14 @@ from api.worldmap import PokeStop
 
 
 @kernel.container.register('spin_pokestop', ['@event_manager', '@logger'], tags=['plugin'])
-class SpinPokestop(object):
+class SpinPokestop(Plugin):
     def __init__(self, event_manager, logger):
         self.event_manager = event_manager
-        self.logger = logger
+        self.set_logger(logger, 'PokeStop')
 
         self.event_manager.add_listener('pokestops_found', self.filter_pokestops, priority=-1000)
         self.event_manager.add_listener('pokestops_found', self.visit_near_pokestops, priority=1000)
         self.event_manager.add_listener('pokestop_arrived', self.spin_pokestop, priority=1000)
-
-    def log(self, text, color="black"):
-        self.logger.log(text, color=color, prefix="PokeStop")
 
     @staticmethod
     def filter_pokestops(pokestops=None):

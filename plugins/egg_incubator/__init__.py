@@ -1,26 +1,17 @@
 # -*- coding: utf-8 -*-
+from app import Plugin
 from app import kernel
 
-# TODO: Fix this entire plugin
 
-# TODO: Use DI for config loading (requires PR #270)
-import ruamel.yaml
-import os # pylint: disable=wrong-import-order
-with open(os.path.join(os.getcwd(), 'config/plugins/egg_incubator.yml'), 'r') as config_file:
-    incubate_config = ruamel.yaml.load(config_file.read(), ruamel.yaml.RoundTripLoader)
-
-
-@kernel.container.register('egg_incubator', ['@event_manager', '@logger'], tags=['plugin'])
-class EggIncubator(object):
-    def __init__(self, event_manager, logger):
+@kernel.container.register('egg_incubator', ['@config.egg_incubator', '@event_manager', '@logger'], tags=['plugin'])
+class EggIncubator(Plugin):
+    def __init__(self, config, event_manager, logger):
+        self.config = config
         self.event_manager = event_manager
-        self.logger = logger
+        self.set_logger(logger, 'Incubator')
 
         self.event_manager.add_listener('walking_started', self.incubate_eggs, priority=1000)
         self.event_manager.add_listener('incubate_egg', self.incubate_egg)
-
-    def log(self, text, color="black"):
-        self.logger.log(text, color=color, prefix="Incubator")
 
     def incubate_eggs(self, bot, coords=None):
         eggs = bot.player_service.get_eggs()
@@ -28,16 +19,16 @@ class EggIncubator(object):
 
         eggs = [egg for egg in eggs if egg.egg_incubator_id == ""]
         incubators = [incu for incu in all_incubators if incu.pokemon_id == 0 and (
-            incubate_config["incubation_use_all"] is True or incu.item_id == 901)]
+            self.config["incubation_use_all"] is True or incu.item_id == 901)]
 
         in_use_count = len(all_incubators) - len(incubators)
 
         # order eggs by distance longest -> shortest
         eggs_by_distance = sorted(eggs, key=lambda x: x.total_distance, reverse=True)
 
-        for egg_distance in incubate_config["incubation_priority"]:
+        for egg_distance in self.config["incubation_priority"]:
             try:
-                egg_restriction = int(incubate_config["incubation_restrict"][egg_distance])
+                egg_restriction = int(self.config["incubation_restrict"][egg_distance])
             except KeyError:
                 egg_restriction = None
 

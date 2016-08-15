@@ -16,20 +16,22 @@ from pokemongo_bot.service import Player, Pokemon
 @kernel.container.register_compiler_pass()
 def boot(service_container):
     # PoGoApi parameters
-    service_container.set_parameter('pogoapi.provider', service_container.config.auth_service)
-    service_container.set_parameter('pogoapi.username', service_container.config.username)
-    service_container.set_parameter('pogoapi.password', service_container.config.password)
-    service_container.set_parameter('pogoapi.shared_lib', service_container.config.load_library)
+    config = service_container.get('config.core')
+
+    service_container.set_parameter('pogoapi.provider', config['login']['auth_service'])
+    service_container.set_parameter('pogoapi.username', config['login']['username'])
+    service_container.set_parameter('pogoapi.password', config['login']['password'])
+    service_container.set_parameter('pogoapi.shared_lib', config['load_library'])
 
     service_container.register_singleton('pgoapi', PGoApi())
-    service_container.register_singleton('google_maps', googlemaps.Client(key=service_container.config["mapping"]["gmapkey"]))
+    service_container.register_singleton('google_maps', googlemaps.Client(key=config["mapping"]["gmapkey"]))
 
-    if service_container.config['movement']['path_finder'] in ['google', 'direct']:
-        service_container.set_parameter('path_finder', service_container.config['movement']['path_finder'] + '_path_finder')
+    if config['movement']['path_finder'] in ['google', 'direct']:
+        service_container.set_parameter('path_finder', config['movement']['path_finder'] + '_path_finder')
     else:
         raise Exception('You must provide a valid path finder')
 
-    if service_container.config['movement']['navigator'] in ['fort', 'waypoint', 'camper']:
-        service_container.set_parameter('navigator', service_container.config['movement']['navigator'] + '_navigator')
+    if config['movement']['navigator'] in ['fort', 'waypoint', 'camper']:
+        service_container.set_parameter('navigator', config['movement']['navigator'] + '_navigator')
     else:
         raise Exception('You must provide a valid navigator')

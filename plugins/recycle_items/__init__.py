@@ -1,29 +1,20 @@
 # -*- coding: utf-8 -*-
+from app import Plugin
 from app import kernel
-from pokemongo_bot.human_behaviour import sleep
 
 
-# TODO: Use DI for config loading (requires PR #270)
-import ruamel.yaml
-import os # pylint: disable=wrong-import-order
-with open(os.path.join(os.getcwd(), 'config/plugins/recycle_items.yml'), 'r') as config_file:
-    recycle_config = ruamel.yaml.load(config_file.read(), ruamel.yaml.RoundTripLoader)
-
-
-@kernel.container.register('recycle_items', ['@event_manager', '@logger'], tags=['plugin'])
-class RecycleItems(object):
-    def __init__(self, event_manager, logger):
+@kernel.container.register('recycle_items', ['@config.recycle_items', '@event_manager', '@logger'], tags=['plugin'])
+class RecycleItems(Plugin):
+    def __init__(self, config, event_manager, logger):
+        self.config = config
         self.event_manager = event_manager
-        self.logger = logger
+        self.set_logger(logger, 'Recycler')
 
-        if recycle_config["recycle_on_start"]:
+        if self.config["recycle_on_start"]:
             self.event_manager.add_listener('bot_initialized', self.recycle_on_bot_start)
 
         self.event_manager.add_listener('item_bag_full', self.filter_recyclable_items, priority=-10)
         self.event_manager.add_listener('item_bag_full', self.recycle_items, priority=1000)
-
-    def log(self, text, color=None):
-        self.logger.log(text, color=color, prefix="Recycler")
 
     @staticmethod
     def recycle_on_bot_start(bot):
@@ -40,7 +31,7 @@ class RecycleItems(object):
 
         filtered_recyclable_items = {}
 
-        item_filter_list = recycle_config["item_filter"]
+        item_filter_list = self.config["item_filter"]
         sorted_categories = sorted(item_filter_list.keys(), key=lambda x: item_filter_list[x]["priority"])
         for category_name in sorted_categories:
             category = item_filter_list[category_name]

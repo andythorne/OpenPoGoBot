@@ -122,8 +122,8 @@ def create_test_kernel(user_config=None):
     )
     kernel.container.register_singleton('event_manager', EventManager())
 
-    kernel.container.set_parameter('path_finder', config.path_finder)  # pylint: disable=no-member
-    kernel.container.set_parameter('navigator', config.navigator)  # pylint: disable=no-member
+    kernel.container.set_parameter('path_finder', config['movement']['path_finder'])
+    kernel.container.set_parameter('navigator', config['movement']['path_finder'])
 
     return kernel
 

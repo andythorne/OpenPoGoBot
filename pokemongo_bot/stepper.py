@@ -7,7 +7,7 @@ from pokemongo_bot.human_behaviour import sleep, random_lat_long_delta
 from pokemongo_bot.utils import distance, format_time, format_dist
 
 
-@kernel.container.register('stepper', ['@config', '@api_wrapper', '%path_finder%', '@logger'])
+@kernel.container.register('stepper', ['@config.core', '@api_wrapper', '%path_finder%', '@logger'])
 class Stepper(object):
     AVERAGE_STRIDE_LENGTH_IN_METRES = 0.60
 
@@ -29,7 +29,7 @@ class Stepper(object):
         self.current_lng = None
         self.current_alt = None
 
-        self.speed = 4.16 if (self.config.walk is None or self.config.walk <= 0) else self.config.walk
+        self.speed = 4.16 if (self.config['movement']['walk_speed'] is None or self.config['movement']['walk_speed'] <= 0) else self.config['movement']['walk_speed']
 
     def start(self, origin_lat, origin_lng, origin_alt):
         # type: (float, float, float) -> None

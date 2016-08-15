@@ -1,23 +1,16 @@
+from app import Plugin
 from app import kernel
 from pokemongo_bot.human_behaviour import sleep
 
-
 # pylint: disable=unused-argument
 
-# TODO: Fix this entire module
 
-# TODO: Use DI for config loading (requires PR #270)
-import ruamel.yaml
-import os # pylint: disable=wrong-import-order
-with open(os.path.join(os.getcwd(), 'config/plugins/evolve_pokemon.yml'), 'r') as config_file:
-    evolve_config = ruamel.yaml.load(config_file.read(), ruamel.yaml.RoundTripLoader)
-
-
-@kernel.container.register('evolver', ['@event_manager', '@logger'], tags=['plugin'])
-class Evolver(object):
-    def __init__(self, event_manager, logger):
+@kernel.container.register('evolver', ['@config.evolve_pokemon', '@event_manager', '@logger'], tags=['plugin'])
+class Evolver(Plugin):
+    def __init__(self, config, event_manager, logger):
+        self.config = config
         self.event_manager = event_manager
-        self.logger = logger
+        self.set_logger(logger, 'Evolver')
         self.event_manager.add_listener('pokemon_caught', self._after_catch, priority=0)
         self.event_manager.add_listener('after_transfer_pokemon', self._after_transfer, priority=0)
 
@@ -36,10 +29,10 @@ class Evolver(object):
         pokemon_id = base_pokemon['id']
         num_evolve = base_pokemon['requirements']
         pokemon_candies = bot.candies.get(int(pokemon_id), 0)
-        evolve_list = evolve_config["evolve_filter"]
+        evolve_list = self.config["evolve_filter"]
         if base_name in evolve_list and evolve_list[base_name]["evolve"] is True:
             if num_evolve is None:
-                self._log('Can\'t evolve {}'.format(base_name), color='yellow')
+                self.log('Can\'t evolve {}'.format(base_name), color='yellow')
                 return
 
             pokemon_evolve = [pokemon for pokemon in pokemon_list if pokemon.pokemon_id is pokemon_id]
@@ -57,21 +50,21 @@ class Evolver(object):
                     pokemon_candies -= (num_evolve - 1)
                     num_evolved += 1
                     evolved_id = response['evolution'].get_pokemon().pokemon_id
-                    self._log('Evolved {} into {}'.format(base_name, bot.pokemon_list[evolved_id - 1]['Name']))
+                    self.log('Evolved {} into {}'.format(base_name, bot.pokemon_list[evolved_id - 1]['Name']))
 
                     self.event_manager.fire_with_context('pokemon_evolved', bot, pokemon=pokemon,
                                                          evolution=evolved_id)
 
                     sleep(2)
                 else:
-                    self._log('Evolving {} failed'.format(base_name), color='red')
+                    self.log('Evolving {} failed'.format(base_name), color='red')
                     break
             if num_evolve > pokemon_candies:
-                self._log('Not enough candies for {} to evolve'.format(base_name), color='yellow')
+                self.log('Not enough candies for {} to evolve'.format(base_name), color='yellow')
             elif len(pokemon_evolve) > num_evolved:
-                self._log('Stopped evolving due to error', color='red')
+                self.log('Stopped evolving due to error', color='red')
             else:
-                self._log('Evolved {} {}(s)'.format(num_evolved, base_name))
+                self.log('Evolved {} {}(s)'.format(num_evolved, base_name))
 
     @staticmethod
     def _get_base_pokemon(bot, name):
@@ -96,6 +89,3 @@ class Evolver(object):
                         num_evolve = num_evolve.get('Amount', None)
                 break
         return {'id': int(pokemon_id), 'requirements': num_evolve, 'name': pokemon_name}
-
-    def _log(self, text, color='green'):
-        self.logger.log(text, color=color, prefix='Evolver')

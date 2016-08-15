@@ -32,7 +32,6 @@ import ssl
 import sys
 
 import colorama
-import ruamel.yaml
 
 # Disable HTTPS certificate verification
 from app import kernel
@@ -49,15 +48,13 @@ def init_config():
             print("Command line arguments are deprecated. See README for details.")
             print("Usage: pokecli.py [path to config.yml]")
             exit(1)
-        config_path = sys.argv[2]
+        config_path = sys.argv[1]
 
     if not os.path.isfile(config_path):
         print("{} does not exist.".format(config_path))
         exit(1)
 
-    with open(config_path, 'r') as config_file:
-        config = ruamel.yaml.load(config_file.read(), ruamel.yaml.RoundTripLoader)
-        return config
+    return config_path
 
 
 def main():
@@ -67,13 +64,11 @@ def main():
 
     colorama.init()
 
-    config = init_config()
-    if not config:
+    config_dir = init_config()
+    if not config_dir:
         return
 
-    kernel.import_config(config)
-    for plugin in config.exclude_plugins:
-        kernel.disable_plugin(plugin)
+    kernel.set_config_file(config_dir)
     kernel.boot()
 
     try:

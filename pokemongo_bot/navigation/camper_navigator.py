@@ -4,7 +4,7 @@ from pokemongo_bot.navigation.destination import Destination
 from pokemongo_bot.navigation.navigator import Navigator
 
 
-@kernel.container.register('camper_navigator', ['@config', '@api_wrapper', '@logger'])
+@kernel.container.register('camper_navigator', ['@config.core', '@api_wrapper', '@logger'])
 class CamperNavigator(Navigator):
     def __init__(self, config, api_wrapper, logger):
         # type: (Namespace, PoGoApi, Logger) -> None
@@ -13,8 +13,8 @@ class CamperNavigator(Navigator):
         self.camping_sites = []
         self.logger = logger
 
-        if config.navigator_campsite is not None:
-            lat, lng = config.navigator_campsite.split(',')
+        if config['movement']['navigator_campsite'] is not None:
+            lat, lng = config['movement']['navigator_campsite']
             self.camping_sites.append((float(lat), float(lng)))
 
         self.pointer = 0

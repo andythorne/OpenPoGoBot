@@ -4,7 +4,7 @@ from pokemongo_bot.navigation.navigator import Navigator
 from pokemongo_bot.utils import distance
 
 
-@kernel.container.register('fort_navigator', ['@config', '@api_wrapper'])
+@kernel.container.register('fort_navigator', ['@config.core', '@api_wrapper'])
 class FortNavigator(Navigator):
     def navigate(self, map_cells):
         # type: (List[Cell]) -> List([Destination])

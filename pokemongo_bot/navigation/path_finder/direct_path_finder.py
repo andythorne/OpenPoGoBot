@@ -4,7 +4,7 @@ from app import kernel
 
 # pylint: disable=unused-argument,no-self-use
 
-@kernel.container.register('direct_path_finder', ['@config'])
+@kernel.container.register('direct_path_finder', ['@config.core'])
 class DirectPathFinder(PathFinder):
     def path(self, from_lat, form_lng, to_lat, to_lng):
         # type: (float, float, float, float) -> List[(float, float)]

@@ -4,15 +4,16 @@ from __future__ import print_function
 import random
 import time
 
+from app import Plugin
 from app import kernel
 from pokemongo_bot.human_behaviour import sleep
 
 
 @kernel.container.register('catch_pokemon', ['@event_manager', '@logger'], tags=['plugin'])
-class CatchPokemon(object):
+class CatchPokemon(Plugin):
     def __init__(self, event_manager, logger):
         self.event_manager = event_manager
-        self.logger = logger
+        self.set_logger(logger, 'Catch')
 
         self.event_manager.add_listener('pokemon_found', self.pokemon_found)
 
@@ -21,9 +22,6 @@ class CatchPokemon(object):
 
         if encounters is None or len(encounters) == 0:
             return
-
-        def log(text, color="black"):
-            self.logger.log(text, color=color, prefix="Catch")
 
         for pokemon_encounter in encounters:
             encounter_id = pokemon_encounter['encounter_id']
@@ -41,7 +39,7 @@ class CatchPokemon(object):
             status = encounter_data.status
             if status is 7:
                 # Pokemon bag is full, fire event and return for now
-                log("Pokemon bag is full; cannot catch.", color="red")
+                self.log("Pokemon bag is full; cannot catch.", color="red")
                 bot.fire("pokemon_bag_full")
                 return
             elif status is 1:
@@ -55,7 +53,7 @@ class CatchPokemon(object):
                 pokemon_num = pokemon.pokemon_id - 1
                 pokemon_name = bot.pokemon_list[pokemon_num]["Name"]
 
-                log("A wild {} appeared! [CP {}] [Potential {}]".format(pokemon_name, combat_power, pokemon_potential))
+                self.log("A wild {} appeared! [CP {}] [Potential {}]".format(pokemon_name, combat_power, pokemon_potential))
 
                 balls_stock = bot.player_service.get_pokeballs()
                 total_pokeballs = sum([balls_stock[ball_type] for ball_type in balls_stock])
@@ -67,7 +65,7 @@ class CatchPokemon(object):
                 should_continue_throwing = True
                 while should_continue_throwing:
                     if total_pokeballs == 0:
-                        log("No Pokeballs in inventory; cannot catch.", color="red")
+                        self.log("No Pokeballs in inventory; cannot catch.", color="red")
                         return
 
                     pokeball = 0
@@ -77,22 +75,22 @@ class CatchPokemon(object):
 
                     if balls_stock[2] > 0:
                         if pokeball is 0 and combat_power <= 300 and balls_stock[2] < 10:
-                            log('Great Ball stock is low... saving for pokemon with cp greater than 300')
+                            self.log('Great Ball stock is low... saving for pokemon with cp greater than 300')
                         elif combat_power > 300 or pokeball is 0:
                             pokeball = 2
 
                     if balls_stock[3] > 0:
                         if pokeball is 0 and combat_power <= 700 and balls_stock[3] < 10:
-                            log('Ultra Ball stock is low... saving for pokemon with cp greater than 700')
+                            self.log('Ultra Ball stock is low... saving for pokemon with cp greater than 700')
                         elif combat_power > 700 or pokeball is 0:
                             pokeball = 3
 
                     if pokeball == 0:
-                        log("No ball selected as all balls are low in stock. Saving for better Pokemon.", color="red")
+                        self.log("No ball selected as all balls are low in stock. Saving for better Pokemon.", color="red")
                         bot.fire('no_balls')
                         return
 
-                    log("Using {}... ({} left!)".format(bot.item_list[pokeball], balls_stock[pokeball]-1))
+                    self.log("Using {}... ({} left!)".format(bot.item_list[pokeball], balls_stock[pokeball]-1))
 
                     balls_stock[pokeball] -= 1
                     total_pokeballs -= 1
@@ -103,14 +101,11 @@ class CatchPokemon(object):
             elif status is 6:
                 return
             else:
-                log("I don't know what happened! Maybe servers are down?", color="red")
+                self.log("I don't know what happened! Maybe servers are down?", color="red")
                 return
 
     def throw_pokeball(self, bot, encounter_id, pokeball, spawn_point_id, pokemon, pos):
         # type: (PokemonGoBot, int, int, str, Pokemon) -> bool
-
-        def log(text, color="black"):
-            self.logger.log(text, color=color, prefix="Catch")
 
         bot.api_wrapper.catch_pokemon(encounter_id=encounter_id,
                                       pokeball=pokeball,
@@ -128,20 +123,20 @@ class CatchPokemon(object):
         pokemon_name = pokemon_data["Name"]
         pokemon_id = pokemon_data["Number"]
         if status is 2:
-            log('Failed to capture {}. Trying again!'.format(pokemon_name), 'yellow')
+            self.log('Failed to capture {}. Trying again!'.format(pokemon_name), 'yellow')
             bot.fire("pokemon_catch_failed", pokemon=pokemon)
             sleep(2)
             return True
         elif status is 3:
-            log('Oh no! {} fled! :('.format(pokemon_name), 'red')
+            self.log('Oh no! {} fled! :('.format(pokemon_name), 'red')
             bot.fire("pokemon_fled", pokemon=pokemon)
             return False
         elif status is 1:
-            log('{} has been caught! (CP {}, IV {})'.format(pokemon_name, pokemon.combat_power, pokemon.potential), 'green')
+            self.log('{} has been caught! (CP {}, IV {})'.format(pokemon_name, pokemon.combat_power, pokemon.potential), 'green')
             xp = pokemon_catch_response.xp
             stardust = pokemon_catch_response.stardust
             candy = pokemon_catch_response.candy
             bot.player_service.add_candy(pokemon_id, candy)
-            log("Rewards: {} XP, {} Stardust, {} Candy".format(xp, stardust, candy), "green")
+            self.log("Rewards: {} XP, {} Stardust, {} Candy".format(xp, stardust, candy), "green")
             bot.fire("pokemon_caught", pokemon=pokemon, position=pos)
             return False
