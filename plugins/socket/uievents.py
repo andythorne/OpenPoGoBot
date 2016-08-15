@@ -49,7 +49,7 @@ class UiEvents(object):
                 inventory = bot.player_service.get_inventory()
 
                 emit_object = {
-                    "inventory": inventory["inventory"]
+                    "inventory": inventory
                 }
                 socketio.emit("inventory_list", emit_object, namespace="/event", room=request.sid)
 
