@@ -35,6 +35,7 @@ import colorama
 
 # Disable HTTPS certificate verification
 from app import kernel
+from pokemongo_bot.bot import PokemonGoBot
 
 if sys.version_info >= (2, 7, 9):
     # pylint: disable=protected-access

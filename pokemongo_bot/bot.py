@@ -114,7 +114,7 @@ class PokemonGoBot(object):
                 destination.target_alt
             )
             destination.set_steps(steps)
-            
+
             self.fire("route", route=steps)
 
             self.fire("walking_started",
