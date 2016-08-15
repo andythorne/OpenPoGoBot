@@ -34,9 +34,7 @@ class TransferPokemon(Plugin):
     @staticmethod
     def get_transfer_list(bot, transfer_list=None):
         if transfer_list is None:
-            bot.api_wrapper.get_player().get_inventory()
-            response_dict = bot.api_wrapper.call()
-            transfer_list = response_dict['pokemon']
+            transfer_list = bot.player_service.get_pokemon()
 
         return None if len(transfer_list) == 0 else transfer_list
 

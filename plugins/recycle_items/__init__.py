@@ -20,12 +20,10 @@ class RecycleItems(Plugin):
     def recycle_on_bot_start(bot):
             bot.fire("item_bag_full")
 
-    @staticmethod
-    def filter_recyclable_items(bot, recyclable_items=None):
+    def filter_recyclable_items(self, bot, recyclable_items=None):
 
         if recyclable_items is None:
-            response = bot.player_service.get_inventory()
-            recyclable_items = response["inventory"]
+            recyclable_items = bot.player_service.get_inventory()
 
         copy_of_recyclable_items = dict(recyclable_items)
 

@@ -21,9 +21,7 @@ class Evolver(Plugin):
         self._do_evolve(bot, bot.pokemon_list[pokemon.pokemon_id - 1]['Name'])
 
     def _do_evolve(self, bot, name):
-        bot.api_wrapper.get_player().get_inventory()
-        response_dict = bot.api_wrapper.call()
-        pokemon_list = response_dict['pokemon']
+        pokemon_list = bot.player_service.get_pokemon()
         base_pokemon = self._get_base_pokemon(bot, name)
         base_name = base_pokemon['name']
         pokemon_id = base_pokemon['id']

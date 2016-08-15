@@ -57,8 +57,7 @@ def register_ui_events(socketio, state):
     def client_ask_for_inventory_list():
         if "bot" in state:
             bot = state["bot"]
-            bot.api_wrapper.get_player().get_inventory()
-            inventory = bot.api_wrapper.call()
+            inventory = bot.player_service.get_inventory()
 
             emit_object = {
                 "inventory": inventory["inventory"]
