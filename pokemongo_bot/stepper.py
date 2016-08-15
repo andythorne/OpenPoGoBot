@@ -18,8 +18,6 @@ class Stepper(object):
         self.path_finder = path_finder
         self.logger = logger
 
-        self.speed = 4.16 if self.config["movement"]["walk_speed"] <= 0 else self.config["movement"]["walk_speed"]
-
         self.origin_lat = None
         self.origin_lng = None
         self.origin_alt = None

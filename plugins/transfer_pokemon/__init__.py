@@ -3,7 +3,8 @@ from app import kernel
 from pokemongo_bot.human_behaviour import sleep
 
 
-@kernel.container.register('transfer_pokemon', ['@config.transfer_pokemon', '@event_manager', '@logger'], tags=['plugin'])
+@kernel.container.register('transfer_pokemon', ['@config.transfer_pokemon', '@event_manager', '@logger'],
+                           tags=['plugin'])
 class TransferPokemon(Plugin):
     def __init__(self, config, event_manager, logger):
         self.config = config
@@ -125,7 +126,8 @@ class TransferPokemon(Plugin):
         if len(new_transfer_list) != len(transfer_list):
             if len(excluded_species) > 1:
                 excluded_species_list = list(excluded_species)
-                filter_list.append("excluding " + "s, ".join(excluded_species_list[:-1]) + "s and " + excluded_species_list[-1] + "s")
+                filter_list.append(
+                    "excluding " + "s, ".join(excluded_species_list[:-1]) + "s and " + excluded_species_list[-1] + "s")
             else:
                 filter_list.append("excluding " + excluded_species.pop() + "s")
 
@@ -223,12 +225,16 @@ class TransferPokemon(Plugin):
             pokemon_name = bot.pokemon_list[pokemon_num - 1]["Name"]
             pokemon_cp = pokemon.combat_power
             pokemon_potential = pokemon.potential
-            self.log("Transferring {0} (#{1}) with CP {2} and IV {3} ({4}/{5})".format(pokemon_name,
-                                                                                  pokemon_num,
-                                                                                  pokemon_cp,
-                                                                                  pokemon_potential,
-                                                                                  index+1,
-                                                                                  len(transfer_list)))
+            self.log(
+                "Transferring {0} (#{1}) with CP {2} and IV {3} ({4}/{5})".format(
+                    pokemon_name,
+                    pokemon_num,
+                    pokemon_cp,
+                    pokemon_potential,
+                    index + 1,
+                    len(transfer_list)
+                )
+            )
 
             bot.api_wrapper.release_pokemon(pokemon_id=pokemon.unique_id).call()
             sleep(2)

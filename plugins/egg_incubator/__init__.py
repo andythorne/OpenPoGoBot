@@ -13,6 +13,7 @@ class EggIncubator(Plugin):
         self.event_manager.add_listener('walking_started', self.incubate_eggs, priority=1000)
         self.event_manager.add_listener('incubate_egg', self.incubate_egg)
 
+    # pylint: disable=unused-argument
     def incubate_eggs(self, bot, coords=None):
         eggs = bot.player_service.get_eggs()
         all_incubators = bot.player_service.get_egg_incubators()

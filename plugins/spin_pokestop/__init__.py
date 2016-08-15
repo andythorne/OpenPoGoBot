@@ -29,7 +29,8 @@ class SpinPokestop(Plugin):
             return {"pokestops": []}
 
         # Only grab PokeStops with coordinates
-        pokestops = [pokestop for pokestop in pokestops if isinstance(pokestop, PokeStop) and pokestop.latitude is not None and pokestop.longitude is not None]
+        pokestops = [pokestop for pokestop in pokestops if isinstance(pokestop,
+                                                                      PokeStop) and pokestop.latitude is not None and pokestop.longitude is not None]
         return {"pokestops": pokestops}
 
     def visit_near_pokestops(self, bot, pokestops=None):
@@ -50,8 +51,13 @@ class SpinPokestop(Plugin):
                 if pokestop.is_in_cooldown() is False:
                     self.event_manager.fire_with_context('pokestop_arrived', bot, pokestop=pokestop)
                 elif bot.config["debug"]:
-                    self.log("Nearby fort found is in cooldown for {} ({}m away)".format(format_time((pokestop.cooldown_timestamp_ms - now) / 1000),
-                                                                                ceil(dist)), color="yellow")
+                    self.log(
+                        "Nearby fort found is in cooldown for {} ({}m away)".format(
+                            format_time((pokestop.cooldown_timestamp_ms - now) / 1000),
+                            ceil(dist)
+                        ),
+                        color="yellow"
+                    )
 
     def spin_pokestop(self, bot, pokestop=None):
         # type: (PokemonGoBot, Optional[List[Fort]]) -> None
@@ -69,8 +75,14 @@ class SpinPokestop(Plugin):
                                                     latitude=pokestop.latitude,
                                                     longitude=pokestop.longitude).call()
         dist = distance(bot.stepper.current_lat, bot.stepper.current_lng, pokestop.latitude, pokestop.longitude)
-        self.log("Nearby PokeStop found \"{}\" ({} away)".format(fort_details["fort"].fort_name,
-                                                            format_dist(dist, bot.config["mapping"]["distance_unit"])), color="yellow")
+        self.log(
+            "Nearby PokeStop found \"{}\" ({} away)".format(
+                fort_details["fort"].fort_name,
+                format_dist(dist,
+                            bot.config["mapping"]["distance_unit"])
+            ),
+            color="yellow"
+        )
 
         self.log("Spinning...", color="yellow")
         sleep(3)

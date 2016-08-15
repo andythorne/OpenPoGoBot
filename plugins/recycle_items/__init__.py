@@ -18,7 +18,7 @@ class RecycleItems(Plugin):
 
     @staticmethod
     def recycle_on_bot_start(bot):
-            bot.fire("item_bag_full")
+        bot.fire("item_bag_full")
 
     def filter_recyclable_items(self, bot, recyclable_items=None):
 
