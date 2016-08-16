@@ -36,7 +36,7 @@ class Kernel(object):
 
         config_dir = os.path.dirname(self._config_file)
         for node in os.listdir(os.path.join(config_dir, 'plugins')):
-            location = os.path.join(config_dir, 'plugins', node)
+            location = os.path.join(config_dir, self._configs['core']['plugins']['config'], node)
             if os.path.isfile(location) and node[-4:].lower() == '.yml':
                 with open(location, 'r') as config_file:
                     module_name = node[:-4]
