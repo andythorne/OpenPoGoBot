@@ -69,4 +69,5 @@ plugins:
         - ./plugins
 
     # Load plugin YAML config files from this folder, relative to the main config file directory
-    config: "plugins"
+    config:
+        - "plugins"
